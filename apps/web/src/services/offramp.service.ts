@@ -10,8 +10,15 @@ import type {
     CreateOfframpResponse,
     QuoteStatusResponse,
 } from "@/types/offramp";
+import {
+    isOfframpMockEnabled,
+    mockOfframpService,
+} from "@/services/offramp.mock";
 
-const API_BASE = process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "";
+const API_BASE =
+    process.env.NEXT_PUBLIC_BACKEND_BASE_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "";
 const OFFRAMP_API_BASE = `${API_BASE}/api/offramp`;
 
 const getHeaders = (walletId?: string) => ({
@@ -19,7 +26,7 @@ const getHeaders = (walletId?: string) => ({
     ...(walletId ? { "x-wallet-id": walletId } : {}),
 });
 
-export const offrampService = {
+const realOfframpService = {
     /**
      * Sync wallet address with backend
      */
@@ -334,3 +341,10 @@ export const offrampService = {
         }
     },
 };
+
+const shouldUseMock =
+    isOfframpMockEnabled || (!API_BASE && process.env.NODE_ENV !== "production");
+
+export const offrampService = shouldUseMock
+    ? mockOfframpService
+    : realOfframpService;
