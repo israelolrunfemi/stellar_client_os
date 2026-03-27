@@ -159,9 +159,12 @@ const CreatePaymentStream = () => {
 
     return (
         <>
-            <main className="flex flex-col lg:flex-row gap-6 w-full">
+            <main className="flex flex-col lg:flex-row gap-6 md:gap-8 w-full">
                 <div className="w-full lg:w-[70%]">
-                    <div id="create-stream-card" className="bg-zinc-800/50 rounded-lg border border-zinc-700 p-6">
+                    <div
+                        id="create-stream-card"
+                        className="bg-zinc-800/50 rounded-lg border border-zinc-700 p-4 sm:p-5 md:p-6"
+                    >
                         <div className="mb-6">
                             <h2 className="text-xl font-semibold text-zinc-50 mb-2">Create New Stream</h2>
                             <p className="text-zinc-400 text-sm">
@@ -181,7 +184,22 @@ const CreatePaymentStream = () => {
                     </div>
                 </div>
                 <div className="w-full lg:w-[30%]">
-                    <PaymentStreamSummary streamData={streamData} />
+                    <div className="lg:hidden">
+                        <details className="group">
+                            <summary className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-zinc-700 bg-zinc-800/50 px-4 py-3 text-sm font-medium text-zinc-100">
+                                Stream Summary
+                                <span className="text-zinc-400 transition-transform group-open:rotate-180">
+                                    ▾
+                                </span>
+                            </summary>
+                            <div className="mt-3">
+                                <PaymentStreamSummary streamData={streamData} showTitle={false} />
+                            </div>
+                        </details>
+                    </div>
+                    <div className="hidden lg:block">
+                        <PaymentStreamSummary streamData={streamData} />
+                    </div>
                 </div>
             </main>
 

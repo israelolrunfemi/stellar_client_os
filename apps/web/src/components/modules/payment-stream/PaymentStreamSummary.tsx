@@ -16,9 +16,10 @@ interface StreamFormData {
 interface PaymentStreamSummaryProps {
   streamData?: StreamFormData;
   data?: any; // To support old PaymentStreamFormData pattern in ConfirmationModal
+  showTitle?: boolean;
 }
 
-export function PaymentStreamSummary({ streamData, data }: PaymentStreamSummaryProps) {
+export function PaymentStreamSummary({ streamData, data, showTitle = true }: PaymentStreamSummaryProps) {
   // Normalize data
   const name = streamData?.name || "";
   const recipient = streamData?.recipient || data?.recipientAddress || "";
@@ -69,7 +70,9 @@ export function PaymentStreamSummary({ streamData, data }: PaymentStreamSummaryP
 
   return (
     <div className="space-y-4 p-4 bg-zinc-800/50 rounded-lg border border-zinc-700 h-fit">
-      <h3 className="font-semibold text-lg text-zinc-50">Stream Summary</h3>
+      {showTitle && (
+        <h3 className="font-semibold text-lg text-zinc-50">Stream Summary</h3>
+      )}
 
       <div className="space-y-3 text-sm">
         {name && (

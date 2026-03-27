@@ -84,7 +84,7 @@ export function PaymentStreamForm({
   return (
     <div className="w-full h-full flex flex-col">
       <div>
-        <div className="grid lg:grid-cols-2 gap-6 my-6">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 my-6">
           <InputWithLabel
             title="Stream Name"
             name="name"
@@ -103,7 +103,7 @@ export function PaymentStreamForm({
           />
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6 my-6">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 my-6">
           <AppSelect
             className="h-12"
             titleClassName="text-zinc-300"
@@ -124,7 +124,7 @@ export function PaymentStreamForm({
           />
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6 my-6">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 my-6">
           <AppSelect
             className="h-12"
             titleClassName="text-zinc-300"
@@ -146,12 +146,12 @@ export function PaymentStreamForm({
           />
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6 my-6 justify-between">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 my-6 justify-between">
           <div className="flex flex-col">
-            <h3 className="text-zinc-300 mb-3 text-nowrap">
+            <h3 className="text-zinc-300 mb-3 sm:text-nowrap">
               Streaming Duration
             </h3>
-            <div className="w-full grid grid-cols-[0.5fr_1.5fr] items-end gap-x-6">
+            <div className="w-full grid grid-cols-1 sm:grid-cols-[0.5fr_1.5fr] items-end gap-3 sm:gap-x-6">
               <Input
                 className={`border-zinc-700 bg-zinc-800 rounded h-12 placeholder:text-zinc-500 text-white ${
                   endTimeValidation.error ? "border-red-500" : ""
@@ -200,7 +200,7 @@ export function PaymentStreamForm({
 
           <Button
             size="lg"
-            className="justify-self-end self-end h-12 w-fit bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="justify-self-stretch self-stretch sm:justify-self-end sm:self-end h-12 min-h-[44px] w-full sm:w-fit bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={!isFormValid}
             onClick={onSubmit}
           >

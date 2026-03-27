@@ -31,7 +31,7 @@ export function PaymentStreamConfirmationModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="w-[94vw] max-w-2xl sm:w-full max-h-[85vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>Confirm Payment Stream</DialogTitle>
           <DialogClose onClick={() => onOpenChange(false)} />
