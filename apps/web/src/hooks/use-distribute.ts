@@ -34,7 +34,7 @@ export function useDistribute() {
             try {
                 await queryClient.cancelQueries({ queryKey: ['streams'] });
             } catch (error) {
-                console.error('Failed to prepare distribution mutation cache snapshot:', error);
+                // Silently fail cache snapshot
             }
 
             return { previousStreams };

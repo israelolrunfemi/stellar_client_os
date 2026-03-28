@@ -19,6 +19,7 @@ import { WalletNetwork } from "@creit.tech/stellar-wallets-kit";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Wallet } from "lucide-react";
 import { isAbortError } from "@/utils/retry";
+import { notify } from "@/utils/notification";
 
 /**
  * TokenBalanceList Component
@@ -142,20 +143,12 @@ export function TokenBalanceList({ className = "" }: TokenBalanceListProps) {
         const sortedBalances = sortTokenBalances(extractedBalances);
 
         setBalances(sortedBalances);
-      } catch (err) {
+        } catch (err) {
         if (isAbortError(err)) {
           return;
         }
 
-        // Log detailed error information for debugging (Requirement 9.4)
-        console.error("Failed to fetch token balances:", {
-          address,
-          network,
-          error: err instanceof Error ? err.message : String(err),
-          stack: err instanceof Error ? err.stack : undefined,
-          errorType: err instanceof Error ? err.constructor.name : typeof err,
-          timestamp: new Date().toISOString(),
-        });
+        notify.error("Failed to fetch token balances. Please refresh the page.");
 
         // Convert to Error object if needed
         const error =

@@ -35,7 +35,7 @@ export function WalletModal() {
       try {
         await connect(activeSelection);
       } catch (error) {
-        console.error("Connection attempt failed:", error);
+        // Error is handled by StellarWalletProvider
       }
     }
   };

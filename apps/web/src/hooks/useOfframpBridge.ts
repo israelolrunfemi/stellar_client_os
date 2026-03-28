@@ -163,7 +163,6 @@ export function useOfframpBridge(): UseOfframpBridgeReturn {
                 if (isAbortError(error)) {
                     return;
                 }
-                console.error("Failed to load banks:", error);
             } finally {
                 if (!controller.signal.aborted) {
                     setIsLoadingBanks(false);
@@ -315,7 +314,6 @@ export function useOfframpBridge(): UseOfframpBridgeReturn {
                 setOfframpData(offrampRes.data);
 
                 // Step 2: Calculate bridge fees using Allbridge SDK
-                console.log("offrampRes.data", offrampRes.data.depositAmount);
                 const depositAmount = offrampRes.data.depositAmount.toString();
                 const quoteResult = isOfframpMockEnabled
                     ? getMockBridgeQuote(depositAmount)
@@ -354,7 +352,6 @@ export function useOfframpBridge(): UseOfframpBridgeReturn {
     const startPayoutPolling = useCallback(() => {
         if (!offrampData?.reference) return;
         if (payoutPollRef.current) clearInterval(payoutPollRef.current);
-        console.log("polling reference:", offrampData.reference)
         const intervalMs = isOfframpMockEnabled ? getMockDelay("status") : 10000;
         payoutPollRef.current = setInterval(async () => {
             try {

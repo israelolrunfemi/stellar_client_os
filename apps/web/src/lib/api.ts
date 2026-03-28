@@ -9,7 +9,6 @@ export async function fetchStream(streamId: number, signal?: AbortSignal): Promi
     // In a real app we'd use 'soroban-client' or generated bindings.
 
     // Mock implementation for the assignment
-    console.log(`Fetching stream ${streamId}`);
 
     // FIXME: Replace with actual RPC call
     // const contract = new Contract(PAYMENT_STREAM_CONTRACT_ID);
@@ -64,12 +63,10 @@ export async function createStream(params: {
     endTime: number;
 }): Promise<number> {
     // Mock transaction
-    console.log('Creating stream', params);
     return Math.floor(Math.random() * 1000);
 }
 
 export async function withdraw(params: { streamId: number; amount: bigint }): Promise<void> {
-    console.log('Withdrawing', params);
 }
 
 export async function distribute(params: {
@@ -78,5 +75,4 @@ export async function distribute(params: {
     recipients: string[];
     amounts: bigint[] | bigint; // Equal or Weighted
 }): Promise<void> {
-    console.log('Distributing', params);
 }

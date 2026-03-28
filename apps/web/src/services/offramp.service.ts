@@ -59,7 +59,6 @@ const realOfframpService = {
             if (isAbortError(error)) {
                 throw error;
             }
-            console.error("Wallet sync failed:", error);
             return {
                 success: false,
                 message: error instanceof Error ? error.message : "Sync failed",
