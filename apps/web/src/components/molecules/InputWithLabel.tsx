@@ -24,7 +24,7 @@ const InputWithLabel = ({
     return (
         <div className="flex flex-col w-full">
             {title && (
-                <label htmlFor={inputId} className="text-zinc-300 mb-3 text-nowrap">
+                <label htmlFor={inputId} className="text-zinc-300 mb-3 sm:text-nowrap">
                     {title}
                 </label>
             )}

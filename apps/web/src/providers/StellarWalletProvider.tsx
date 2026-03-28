@@ -103,9 +103,9 @@ export const StellarWalletProvider = ({
     setConnectionStatus("disconnecting");
     setAddress(null);
     setSelectedWalletId(null);
-    localStorage.removeItem("stellar_wallet_address");
-    localStorage.removeItem("stellar_wallet_id");
-    localStorage.removeItem("stellar_wallet_network");
+    safeRemoveItem("stellar_wallet_address");
+    safeRemoveItem("stellar_wallet_id");
+    safeRemoveItem("stellar_wallet_network");
     setConnectionStatus("idle");
   }, []);
 
