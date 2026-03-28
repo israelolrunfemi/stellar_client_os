@@ -40,7 +40,7 @@ export function ConnectButton() {
       await disconnect();
       setDropdownOpen(false);
     } catch (error) {
-      console.error("Disconnect failed:", error);
+      // Silently fail disconnect
     }
   };
 

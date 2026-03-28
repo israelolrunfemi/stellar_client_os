@@ -44,7 +44,7 @@ export function useWithdraw() {
                     await queryClient.cancelQueries({ queryKey: streamQueryKey });
                 }
             } catch (error) {
-                console.error('Failed to prepare withdraw mutation cache snapshot:', error);
+                // Silently fail cache snapshot
             }
 
             return { previousStreams, streamQueryKey, previousStream };

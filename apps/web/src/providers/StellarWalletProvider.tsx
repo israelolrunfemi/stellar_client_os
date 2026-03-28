@@ -142,48 +142,57 @@ export const StellarWalletProvider = ({
     lobstr: "https://lobstr.co/",
   };
 
-  const connect = async (walletId: WalletId) => {
-    if (!kit) {
-      console.error("Wallet kit not initialized");
-      return;
+  const connect = useCallback(async (walletId: WalletId) => {
+    if (!kit) return;
+
+    // Abort any previous in-flight attempt before starting a new one
+    if (connectionAbortRef.current) {
+      connectionAbortRef.current.abort();
     }
-    setIsConnecting(true);
+
+    const controller = new AbortController();
+    connectionAbortRef.current = controller;
+    const { signal } = controller;
+
     try {
-      console.log(`Attempting to connect to ${walletId}...`);
       kit.setWallet(walletId);
-
-      // Abort any previous in-flight attempt before starting a new one
-      if (connectionAbortRef.current) {
-        connectionAbortRef.current.abort();
-      }
-
-      const controller = new AbortController();
-      connectionAbortRef.current = controller;
-      const { signal } = controller;
-
       setConnectionStatus("connecting");
-
-      setAddress(address);
-      setSelectedWalletId(walletId);
-      safeSetItem("stellar_wallet_address", address);
-      safeSetItem("stellar_wallet_id", walletId);
-      safeSetItem("stellar_wallet_network", network as string);
       setIsModalOpen(false);
 
-      // Sync with backend on new connection
-      offrampService.syncWallet(address);
-    } catch (error: any) {
-      console.error("Connection failed details:", error);
+      // Await the potentially long-running wallet handshake
+      const response = await kit.getAddress();
 
-      // Extract the most useful error message
+      // If disconnect() or setNetwork() was called while we were awaiting,
+      // the signal is aborted — discard this result entirely.
+      if (signal.aborted) return;
+
+      const { address: resolvedAddress } = response;
+
+      if (!resolvedAddress) {
+        throw new Error(
+          "No address returned from wallet. Please ensure your wallet is unlocked and try again.",
+        );
+      }
+
+      setAddress(resolvedAddress);
+      setSelectedWalletId(walletId);
+      setConnectionStatus("connected");
+      safeSetItem("stellar_wallet_address", resolvedAddress);
+      safeSetItem("stellar_wallet_id", walletId);
+      safeSetItem("stellar_wallet_network", network);
+
+      // Sync with backend on new connection
+      offrampService.syncWallet(resolvedAddress);
+    } catch (error: unknown) {
+      // Don't surface errors for intentionally aborted connections
+      if (signal.aborted) return;
+
       let errorMessage = "Unknown connection error";
       if (error instanceof Error) errorMessage = error.message;
       else if (typeof error === "string") errorMessage = error;
-      else if (error && typeof error === "object" && error.message) errorMessage = error.message;
+      else if (error && typeof error === "object" && "message" in error)
+        errorMessage = String((error as { message: unknown }).message);
 
-      console.error("Connection failed message:", errorMessage);
-
-      // Handle known error conditions
       if (errorMessage.toLowerCase().includes("not installed")) {
         const installHref = WALLET_INSTALL_URL[walletId];
 
@@ -206,80 +215,24 @@ export const StellarWalletProvider = ({
             )}
           </div>,
         );
-      } else if (errorMessage.toLowerCase().includes("user rejected") || errorMessage.toLowerCase().includes("permission denied")) {
-        console.warn("User rejected the connection request");
+      } else if (
+        errorMessage.toLowerCase().includes("user rejected") ||
+        errorMessage.toLowerCase().includes("permission denied")
+      ) {
+        // Silently handle user rejection
       } else {
         // Show a generic but helpful error for other errors
         notify.error(`Failed to connect to ${walletId}: ${errorMessage}`);
       }
 
-        // Await the potentially long-running wallet handshake
-        const response = await kit.getAddress();
-        console.log("Wallet kit connection response:", response);
-
-        // If disconnect() or setNetwork() was called while we were awaiting,
-        // the signal is aborted — discard this result entirely.
-        if (signal.aborted) {
-          console.warn("Connection attempt was cancelled — discarding result.");
-          return;
-        }
-
-        const { address: resolvedAddress } = response;
-
-        if (!resolvedAddress) {
-          throw new Error(
-            "No address returned from wallet. Please ensure your wallet is unlocked and try again.",
-          );
-        }
-
-        setAddress(resolvedAddress);
-        setSelectedWalletId(walletId);
-        setConnectionStatus("connected");
-        localStorage.setItem("stellar_wallet_address", resolvedAddress);
-        localStorage.setItem("stellar_wallet_id", walletId);
-        localStorage.setItem("stellar_wallet_network", network);
-        setIsModalOpen(false);
-
-        // Sync with backend on new connection
-        offrampService.syncWallet(resolvedAddress);
-      } catch (error: unknown) {
-        // Don't surface errors for intentionally aborted connections
-        if (signal.aborted) return;
-
-        console.error("Connection failed details:", error);
-
-        let errorMessage = "Unknown connection error";
-        if (error instanceof Error) errorMessage = error.message;
-        else if (typeof error === "string") errorMessage = error;
-        else if (error && typeof error === "object" && "message" in error)
-          errorMessage = String((error as { message: unknown }).message);
-
-        console.error("Connection failed message:", errorMessage);
-
-        if (errorMessage.toLowerCase().includes("not installed")) {
-          alert(
-            `${walletId} wallet extension is not detected. Please install it or ensure it's enabled.`,
-          );
-        } else if (
-          errorMessage.toLowerCase().includes("user rejected") ||
-          errorMessage.toLowerCase().includes("permission denied")
-        ) {
-          console.warn("User rejected the connection request");
-        } else {
-          alert(`Failed to connect to ${walletId}: ${errorMessage}`);
-        }
-
-        setConnectionStatus("idle");
-        throw error;
-      } finally {
-        // Only clear the ref if this controller is still the active one
-        if (connectionAbortRef.current === controller) {
-          connectionAbortRef.current = null;
-        }
+      setConnectionStatus("idle");
+    } finally {
+      // Only clear the ref if this controller is still the active one
+      if (connectionAbortRef.current === controller) {
+        connectionAbortRef.current = null;
       }
-    },
-    [kit, network],
-  );
+    }
+  }, [kit, network]);
 
   const signTransaction = useCallback(
     async (xdr: string) => {
@@ -288,7 +241,6 @@ export const StellarWalletProvider = ({
         const { signedTxXdr } = await kit.signTransaction(xdr);
         return signedTxXdr;
       } catch (error) {
-        console.error("Signing failed:", error);
         throw error;
       }
     },

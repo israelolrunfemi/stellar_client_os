@@ -57,8 +57,6 @@ export class StellarService {
       // 2. Get the user's keypair
       // 3. Build and submit the actual transaction to the smart contract
 
-      console.log('Creating payment stream with data:', formData)
-
       // Convert duration to seconds (using parseFloat to handle fractional durations)
       const durationValue = parseFloat(formData.duration)
       const durationInSeconds = formData.durationUnit === 'days'
@@ -88,7 +86,6 @@ export class StellarService {
       if (error instanceof Error && error.name === 'AbortError') {
         throw error
       }
-      console.error('Error creating payment stream:', error)
       throw new Error('Failed to create payment stream: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }
   }
@@ -123,8 +120,6 @@ export class StellarService {
       // In a real implementation, this would call the smart contract
       // For demo purposes, we'll simulate the calculation
 
-      console.log('Getting withdrawable amount for stream:', streamId)
-
       // Simulate network delay
       await abortableDelay(1000, signal)
 
@@ -140,7 +135,6 @@ export class StellarService {
       if (error instanceof Error && error.name === 'AbortError') {
         throw error
       }
-      console.error('Error getting withdrawable amount:', error)
       throw new Error('Failed to get withdrawable amount')
     }
   }
@@ -152,7 +146,6 @@ export class StellarService {
   ): Promise<string> {
     try {
       throwIfAborted(signal)
-      console.log('Withdrawing from stream:', streamId, formData)
 
       // Validate withdrawal amount against available amount
       const availableAmount = await this.getWithdrawableAmount(streamId, signal)
@@ -180,7 +173,6 @@ export class StellarService {
       if (error instanceof Error && error.name === 'AbortError') {
         throw error
       }
-      console.error('Error withdrawing from stream:', error)
       throw error instanceof Error ? error : new Error('Failed to withdraw from stream')
     }
   }
@@ -188,7 +180,6 @@ export class StellarService {
   static async getStreamDetails(streamId: string, signal?: AbortSignal): Promise<StreamRecord> {
     try {
       throwIfAborted(signal)
-      console.log('Getting stream details for:', streamId)
 
       // Simulate network delay
       await abortableDelay(500, signal)
@@ -215,7 +206,6 @@ export class StellarService {
       if (error instanceof Error && error.name === 'AbortError') {
         throw error
       }
-      console.error('Error getting stream details:', error)
       throw new Error('Failed to get stream details')
     }
   }

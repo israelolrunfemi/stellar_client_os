@@ -15,6 +15,7 @@ import { SUPPORTED_TOKENS } from '@/lib/validations';
 import ProtectedRoute from '@/components/layouts/ProtectedRoute';
 import { CSVErrorDisplay } from '@/components/molecules/CSVErrorDisplay';
 import { CSVError, CSVWarning } from '@/types/distribution';
+import { notify } from '@/utils/notification';
 
 export default function DistributionPage() {
   const {
@@ -133,8 +134,8 @@ export default function DistributionPage() {
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
-      } catch (error) {
-        console.error('CSV upload error:', error);
+        } catch (error) {
+        notify.error('Failed to process CSV file. Please check the format and try again.');
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         setCsvErrors([{ line: 0, message: errorMessage }]);
         showMessage('error', 'Failed to process CSV file. Please check the format and try again.');
@@ -189,7 +190,7 @@ export default function DistributionPage() {
           }
         }, 100);
       } catch (error) {
-        console.error('CSV drop error:', error);
+        notify.error('Failed to process CSV file. Please check the format and try again.');
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         setCsvErrors([{ line: 0, message: errorMessage }]);
         showMessage('error', 'Failed to process CSV file. Please check the format and try again.');

@@ -8,6 +8,7 @@ import { RecipientRow } from '@/components/molecules/RecipientRow';
 import { FileUploadArea } from '@/components/molecules/FileUploadArea';
 import { Plus, Upload } from 'lucide-react';
 import { Recipient, DistributionType } from '@/types/distribution';
+import { notify } from '@/utils/notification';
 
 interface RecipientTableProps {
   recipients: Recipient[];
@@ -46,7 +47,7 @@ export const RecipientTable = memo(function RecipientTable({
     if (onUploadError) {
       onUploadError([{ line: 0, message: error }], []);
     } else {
-      console.error('CSV upload error:', error);
+      notify.error(`CSV upload error: ${error}`);
     }
   }, [onUploadError]);
 

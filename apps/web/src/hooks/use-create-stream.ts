@@ -41,7 +41,7 @@ export function useCreateStream() {
                     return [...old, { ...newStream, id: -1, status: 'Active' }];
                 });
             } catch (error) {
-                console.error('Failed to apply optimistic stream update:', error);
+                // Silently fail optimistic update
             }
 
             return { previousStreams };

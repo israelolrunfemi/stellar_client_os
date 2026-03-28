@@ -17,6 +17,7 @@ import {
 import { withdrawStreamSchema, type WithdrawStreamFormData, type StreamRecord } from "@/lib/validations"
 import { StellarService } from "@/lib/stellar"
 import { isAbortError } from "@/utils/retry"
+import { notify } from "@/utils/notification"
 
 interface WithdrawStreamModalProps {
   open: boolean
@@ -70,7 +71,7 @@ export function WithdrawStreamModal({
       })
       .catch(error => {
         if (isAbortError(error)) return
-        console.error("Failed to fetch withdrawable amount:", error)
+        notify.error("Failed to fetch withdrawable amount")
         onError?.("Failed to fetch withdrawable amount")
       })
       .finally(() => {
@@ -116,7 +117,7 @@ export function WithdrawStreamModal({
       onOpenChange(false)
       reset()
     } catch (error) {
-      console.error("Error withdrawing from stream:", error)
+      notify.error(error instanceof Error ? error.message : "Failed to withdraw from stream")
       onError?.(error instanceof Error ? error.message : "Failed to withdraw from stream")
     } finally {
       setIsSubmitting(false)
