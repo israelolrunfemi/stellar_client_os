@@ -4,6 +4,7 @@ import {
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
+  DialogDescription,
   DialogClose, 
   DialogFooter 
 } from "@/components/ui/dialog"
@@ -34,13 +35,13 @@ export function PaymentStreamConfirmationModal({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Confirm Payment Stream</DialogTitle>
+          <DialogDescription>
+            Please review the payment stream details before confirming the transaction.
+          </DialogDescription>
           <DialogClose onClick={() => onOpenChange(false)} />
         </DialogHeader>
         
         <div className="space-y-4">
-          <p className="text-zinc-400">
-            Please review the payment stream details before confirming the transaction.
-          </p>
           
           <PaymentStreamSummary data={data} />
           

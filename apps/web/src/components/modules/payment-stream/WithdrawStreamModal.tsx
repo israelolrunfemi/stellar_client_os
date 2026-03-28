@@ -12,7 +12,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogClose,
-  DialogFooter
+  DialogFooter,
+  DialogDescription
 } from "@/components/ui/dialog"
 import { withdrawStreamSchema, type WithdrawStreamFormData, type StreamRecord } from "@/lib/validations"
 import { StellarService } from "@/lib/stellar"
@@ -133,9 +134,12 @@ export function WithdrawStreamModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-sm">
+      <DialogContent className="w-full max-w-sm" onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Withdraw From Stream</DialogTitle>
+          <DialogDescription>
+            Withdraw available funds from your payment stream.
+          </DialogDescription>
           <DialogClose onClick={handleClose} />
         </DialogHeader>
 

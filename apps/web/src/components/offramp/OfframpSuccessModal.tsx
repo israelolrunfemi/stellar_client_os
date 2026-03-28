@@ -1,12 +1,19 @@
 "use client";
-
+ 
 import React, { useState, useRef, useEffect } from "react";
 import { CheckCircle2, Copy, ExternalLink, X, Loader2, XCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog";
 import toast from "react-hot-toast";
 import type { QuoteStatusData, BridgeFeeBreakdown } from "@/types/offramp";
 import { getCurrencySymbol } from "@/types/offramp";
-
+ 
 interface OfframpSuccessModalProps {
     isOpen: boolean;
     feeBreakdown: BridgeFeeBreakdown | null;
@@ -14,7 +21,7 @@ interface OfframpSuccessModalProps {
     bridgeTxHash: string | null;
     onClose: () => void;
 }
-
+ 
 export default function OfframpSuccessModal({
     isOpen,
     feeBreakdown,
@@ -24,7 +31,7 @@ export default function OfframpSuccessModal({
 }: OfframpSuccessModalProps) {
     const [copied, setCopied] = useState(false);
     const copyTimeoutRef = useRef<number | null>(null);
-
+ 
     const handleCopy = async () => {
         if (!payoutStatus?.transactionReference) return;
         try {
@@ -37,45 +44,38 @@ export default function OfframpSuccessModal({
             toast.error("Failed to copy");
         }
     };
-
+ 
     useEffect(() => {
         return () => {
             if (copyTimeoutRef.current) window.clearTimeout(copyTimeoutRef.current);
         };
     }, []);
-
-    if (!isOpen) return null;
-
+ 
     const isCompleted = payoutStatus?.status === "completed" || payoutStatus?.status === "confirmed";
     const isFailed = payoutStatus?.status === "failed";
-
+ 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <div
-                aria-hidden="true"
-                className="absolute inset-0 bg-fundable-dark/80 backdrop-blur-sm"
-                onClick={onClose}
-            />
-
-            {/* Modal */}
-            <div
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="offramp-success-title"
-                aria-describedby="offramp-success-desc"
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <DialogContent
                 aria-live="polite"
                 className="relative w-full max-w-md rounded-3xl bg-fundable-mid-dark border border-gray-800 p-8 space-y-8 animate-in fade-in zoom-in-95 duration-300"
             >
-                {/* Close Button */}
-                <button
-                    onClick={onClose}
-                    aria-label="Close offramp status"
-                    className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors"
-                >
-                    <X className="h-5 w-5" aria-hidden="true" />
-                </button>
-
+                <DialogHeader>
+                    {/* Title */}
+                    <div className="text-center space-y-2 w-full">
+                        <DialogTitle id="offramp-success-title" className="text-2xl font-syne font-bold text-white">
+                            {isCompleted ? "Offramp Complete! 🎉" : isFailed ? "Offramp Failed" : "Offramp Processing"}
+                        </DialogTitle>
+                        <DialogDescription id="offramp-success-desc" className="text-fundable-light-grey text-sm">
+                            {isCompleted
+                                ? "Your funds have been successfully sent to your bank account."
+                                : isFailed
+                                    ? payoutStatus?.providerMessage || "There was an issue with your transfer. Please contact support."
+                                    : "Your transaction is being processed. You can close this window and check back later."}
+                        </DialogDescription>
+                    </div>
+                </DialogHeader>
+ 
                 {/* Success Icon */}
                 <div className="flex justify-center" aria-hidden="true">
                     <div className={`w-20 h-20 rounded-full flex items-center justify-center ${isCompleted ? "bg-green-500/10" : isFailed ? "bg-red-500/10" : "bg-blue-500/10"}`}>
@@ -88,21 +88,7 @@ export default function OfframpSuccessModal({
                         )}
                     </div>
                 </div>
-
-                {/* Title */}
-                <div className="text-center space-y-2">
-                    <h2 id="offramp-success-title" className="text-2xl font-syne font-bold text-white">
-                        {isCompleted ? "Offramp Complete! 🎉" : isFailed ? "Offramp Failed" : "Offramp Processing"}
-                    </h2>
-                    <p id="offramp-success-desc" className="text-fundable-light-grey text-sm">
-                        {isCompleted
-                            ? "Your funds have been successfully sent to your bank account."
-                            : isFailed
-                                ? payoutStatus?.providerMessage || "There was an issue with your transfer. Please contact support."
-                                : "Your transaction is being processed. You can close this window and check back later."}
-                    </p>
-                </div>
-
+ 
                 {/* Summary Card */}
                 {feeBreakdown && (
                     <div className="space-y-4 p-5 rounded-2xl bg-fundable-dark border border-gray-800">
@@ -145,7 +131,7 @@ export default function OfframpSuccessModal({
                         </div>
                     </div>
                 )}
-
+ 
                 {/* Transaction Info */}
                 <div className="space-y-4">
                     {payoutStatus?.transactionReference && (
@@ -159,7 +145,7 @@ export default function OfframpSuccessModal({
                             </div>
                         </div>
                     )}
-
+ 
                     {bridgeTxHash && (
                         <a
                             href={`https://stellar.expert/explorer/public/tx/${bridgeTxHash}`}
@@ -171,7 +157,7 @@ export default function OfframpSuccessModal({
                         </a>
                     )}
                 </div>
-
+ 
                 {/* Action Button */}
                 <Button
                     onClick={onClose}
@@ -179,7 +165,7 @@ export default function OfframpSuccessModal({
                 >
                     {isCompleted ? "Done" : "Close"}
                 </Button>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }
