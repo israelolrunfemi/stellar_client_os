@@ -1,7 +1,7 @@
 "use client";
 
 import toast from "react-hot-toast";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useWallet } from "@/providers/StellarWalletProvider";
 
@@ -15,6 +15,7 @@ import { useTransactionGuard } from "@/hooks/useTransactionGuard";
 import { validateEndTime } from "@/lib/stream-validation";
 import { useDebouncedCallback } from "@/hooks/use-debounce-callback";
 import { useBalanceValidation } from "@/hooks/use-balance-validation";
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import { createTestnetService } from "@/services/stellar.service";
 import { PAYMENT_STREAM_CONTRACT_ID, DISTRIBUTOR_CONTRACT_ID } from "@/lib/constants";
 
@@ -29,6 +30,20 @@ interface StreamFormData {
   cancellability: boolean;
   transferability: boolean;
 }
+
+const createInitialStreamData = (
+    defaultToken: string,
+    defaultDuration: string
+): StreamFormData => ({
+    name: "",
+    recipient: "",
+    token: defaultToken,
+    amount: "",
+    duration: defaultDuration,
+    durationValue: "",
+    cancellability: true,
+    transferability: false,
+});
 
 const CreatePaymentStream = () => {
   const { address, isConnected } = useWallet();
@@ -199,16 +214,12 @@ const CreatePaymentStream = () => {
         })
     );
 
-    const [streamData, setStreamData] = useState<StreamFormData>({
-        name: "",
-        recipient: "",
-        token: tokenOptions[0]?.value || "XLM",
-        amount: "",
-        duration: durationOptions[0]?.value || "day",
-        durationValue: "",
-        cancellability: true,
-        transferability: false,
-    });
+    const initialStreamData = useMemo(
+        () => createInitialStreamData(tokenOptions[0]?.value || "XLM", durationOptions[0]?.value || "day"),
+        [tokenOptions, durationOptions]
+    );
+
+    const [streamData, setStreamData] = useState<StreamFormData>(initialStreamData);
     const [formKey, setFormKey] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -262,7 +273,6 @@ const CreatePaymentStream = () => {
     }, 500);
 
     // Trigger fee estimation when relevant fields change
-    import { useEffect } from "react";
     useEffect(() => {
         if (isConnected && address) {
             estimateFee(streamData, address);
@@ -276,6 +286,12 @@ const CreatePaymentStream = () => {
         isConnected,
         address
     ]);
+
+    const isFormDirty = useMemo(() => {
+        return JSON.stringify(streamData) !== JSON.stringify(initialStreamData);
+    }, [streamData, initialStreamData]);
+
+    useUnsavedChanges(isFormDirty);
 
     const handleFormSubmit = () => {
         if (!isConnected || !address) {
@@ -341,16 +357,7 @@ const CreatePaymentStream = () => {
             );
 
             // Reset form
-            setStreamData({
-                name: "",
-                recipient: "",
-                token: tokenOptions[0]?.value || "XLM",
-                amount: "",
-                duration: durationOptions[0]?.value || "day",
-                durationValue: "",
-                cancellability: true,
-                transferability: false,
-            });
+            setStreamData(initialStreamData);
             setFormKey((k) => k + 1);
 
             // Invalidate streams queries
